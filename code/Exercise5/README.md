@@ -168,3 +168,53 @@ public class CyclomaticComplexityCalculator {
 
 
 ```
+FilterHelpAppendable : Cohesion = 0,00
+Options : Cohesion = 0,00
+PatternOptionBuilder : Cohesion = 0,20
+AmbiguousOptionException : Cohesion = 0,50
+Builder : Cohesion = 0,60
+PosixParser : Cohesion = 0,17
+AlreadySelectedException : Cohesion = 0,00
+GnuParser : Cohesion = 1,00
+AbstractHelpFormatter : Cohesion = 0,05
+UnrecognizedOptionException : Cohesion = 0,00
+HelpAppendable : Cohesion = 0,00
+HelpFormatter : Cohesion = 0,28
+OptionGroup : Cohesion = 0,22
+TextStyle : Cohesion = 0,11
+TextHelpAppendable : Cohesion = 0,22
+OptionBuilder : Cohesion = 0,25
+TableDefinition : Cohesion = 0,00
+Converter : Cohesion = 0,00
+CommandLineParser : Cohesion = 0,00
+TypeHandler : Cohesion = 0,13
+MissingOptionException : Cohesion = 0,00
+DefaultParser : Cohesion = 0,11
+MissingArgumentException : Cohesion = 0,00
+OptionFormatter : Cohesion = 0,00
+DeprecatedAttributes : Cohesion = 0,00
+Parser : Cohesion = 0,08
+BasicParser : Cohesion = 0,00
+CommandLine : Cohesion = 0,08
+Option : Cohesion = 0,27
+ParseException : Cohesion = 0,00
+Cohesion Histogram for Project: /home/daouda-traore/Téléchargements/commons-cli-master/src/main/java/org/apache/commons/cli
+Cohesion 0.5: 1 classes
+Cohesion 0.0: 14 classes
+Cohesion 0.21739130434782608: 1 classes
+Cohesion 0.2222222222222222: 1 classes
+Cohesion 0.07692307692307693: 1 classes
+Cohesion 0.2765957446808511: 1 classes
+Cohesion 0.13333333333333333: 1 classes
+Cohesion 0.25: 1 classes
+Cohesion 1.0: 1 classes
+Cohesion 0.16666666666666666: 1 classes
+Cohesion 0.6: 1 classes
+Cohesion 0.0847457627118644: 1 classes
+Cohesion 0.2: 1 classes
+Cohesion 0.1111111111111111: 1 classes
+Cohesion 0.047619047619047616: 1 classes
+Cohesion 0.10714285714285714: 1 classes
+Cohesion 0.2653061224489796: 1 classes
+Dependency graph saved to: /home/daouda-traore/Téléchargements/commons-cli-master/src/main/java/org/apache/commons/cli_dependency_graph.dot
+Method complexities for project: /home/daouda-traore/Téléchargements/commons-cli-master/src/main/java/org/apache/commons/cli

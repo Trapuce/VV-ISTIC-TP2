@@ -1,12 +1,37 @@
 <?xml version="1.0"?>
-<ruleset name="Custom Rules"
+<ruleset name="Règles personnalisées"
     xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.net/ruleset_2_0_0.xsd">
     
     <description>
-        Rule to detect unused private fields
+        Règle pour identifier les instructions if imbriquées de manière excessive.
     </description>
 
-    <rule ref="category/java/design.xml/UnusedPrivateField"/>
+    <rule name="ImbricationExcessiveIf"
+          language="java"
+          message="Imbrication excessive d'instructions if détectée (profondeur >= 3). Cela complique la lisibilité du code. Envisagez une refactorisation."
+          class="net.sourceforge.pmd.lang.rule.RuleReference">
+        
+        <description>
+            Cette règle détecte les instructions if imbriquées à trois niveaux ou plus.
+            L'imbrication excessive peut rendre le code difficile à comprendre et à maintenir. Considérez l'utilisation de clauses de garde, l'extraction de méthodes ou des alternatives comme le polymorphisme.
+        </description>
+        
+        <priority>3</priority>
+        
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+                    //IfStatement[
+                        ancestor::IfStatement[
+                            ancestor::IfStatement
+                        ]
+                    ]
+                    ]]>
+                </value>
+            </property>
+        </properties>
+    </rule>
 </ruleset>
