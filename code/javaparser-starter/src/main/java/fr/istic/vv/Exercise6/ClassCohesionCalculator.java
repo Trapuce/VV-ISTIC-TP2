@@ -3,6 +3,8 @@ package fr.istic.vv.Exercise6;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.FileWriter;
@@ -22,24 +24,33 @@ public class ClassCohesionCalculator {
         try {
             ClassCohesionCalculator calculator = new ClassCohesionCalculator();
             Map<String, Double> classCohesion = calculator.analyzeProject(sourcePath);
-    
+            
+            // Affichage des résultats de cohésion
             for (Map.Entry<String, Double> entry : classCohesion.entrySet()) {
                 String className = entry.getKey();
                 Double cohesion = entry.getValue();
                 System.out.println(String.format("%s : Cohesion = %.2f", className, cohesion));
             }
+
+            // Création des maps pour l'histogramme et le graphe
+            Map<String, Map<String, Double>> allProjectCohesion = new HashMap<>();
+            allProjectCohesion.put(sourcePath, classCohesion);
+            generateCohesionHistogram(allProjectCohesion);
+
+            // Analyse des dépendances
+            Map<String, Set<String>> projectDependencies = calculator.findDependencies(sourcePath);
+            Map<String, Map<String, Set<String>>> allProjectDependencies = new HashMap<>();
+            allProjectDependencies.put(sourcePath, projectDependencies);
+            
+            generateDependencyGraphs(allProjectDependencies);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
 
-     /**
-     * Analyse le projet source et calcule la cohésion pour chaque classe publique dans le projet.
-     *
-     * @param sourcePath Le chemin du projet source à analyser.
-     * @return Une carte contenant le nom de la classe comme clé et sa cohésion comme valeur.
-     * @throws Exception Si une erreur se produit lors de l'analyse du projet.
+    /**
+     * Analyse le projet source et calcule la cohésion pour chaque classe publique.
      */
     public Map<String, Double> analyzeProject(String sourcePath) throws Exception {
         Map<String, Double> classCohesion = new HashMap<>();
@@ -58,30 +69,63 @@ public class ClassCohesionCalculator {
     
         return classCohesion;
     }
-    
-
 
     /**
-     * Calcule la cohésion d'une classe en fonction du nombre de méthodes qui accèdent aux champs de la classe.
-     * La cohésion est définie comme le ratio entre le nombre de méthodes accédant aux champs et le nombre total de méthodes.
-     *
-     * @param cls La classe ou interface dont la cohésion doit être calculée.
-     * @return La cohésion de la classe, un nombre entre 0 et 1, où 1 signifie que toutes les méthodes accèdent aux champs.
+     * Trouve toutes les dépendances entre les classes du projet.
      */
-   private double calculateCohesion(ClassOrInterfaceDeclaration cls) {
-    long fieldAccessingMethods = 0;
-    for (MethodDeclaration method : cls.getMethods()) {
-        if (method.findAll(com.github.javaparser.ast.expr.FieldAccessExpr.class).size() > 0) {
-            fieldAccessingMethods++;
+    public Map<String, Set<String>> findDependencies(String sourcePath) throws Exception {
+        Map<String, Set<String>> dependencies = new HashMap<>();
+        
+        SourceRoot sourceRoot = new SourceRoot(Paths.get(sourcePath));
+        sourceRoot.tryToParseParallelized();
+        
+        for (CompilationUnit cu : sourceRoot.getCompilationUnits()) {
+            for (ClassOrInterfaceDeclaration cls : cu.findAll(ClassOrInterfaceDeclaration.class)) {
+                if (cls.isPublic()) {
+                    Set<String> classDependencies = new HashSet<>();
+                    
+                    // Analyser les types utilisés dans les champs
+                    cls.getFields().forEach(field -> {
+                        field.getVariable(0).getType().ifClassOrInterfaceType(type -> {
+                            classDependencies.add(type.getNameAsString());
+                        });
+                    });
+                    
+                    // Analyser les types utilisés dans les méthodes
+                    cls.getMethods().forEach(method -> {
+                        method.findAll(ClassOrInterfaceType.class).forEach(type -> {
+                            classDependencies.add(type.getNameAsString());
+                        });
+                    });
+                    
+                    dependencies.put(cls.getNameAsString(), classDependencies);
+                }
+            }
         }
+        
+        return dependencies;
     }
-    
-    return (double) fieldAccessingMethods / cls.getMethods().size();
-}
 
+    /**
+     * Calcule la cohésion d'une classe en fonction du nombre de méthodes qui accèdent aux champs.
+     */
+    private double calculateCohesion(ClassOrInterfaceDeclaration cls) {
+        if (cls.getMethods().isEmpty()) {
+            return 0.0;
+        }
 
-/**
-     * Generate a histogram for class cohesion values.
+        long fieldAccessingMethods = 0;
+        for (MethodDeclaration method : cls.getMethods()) {
+            if (method.findAll(com.github.javaparser.ast.expr.FieldAccessExpr.class).size() > 0) {
+                fieldAccessingMethods++;
+            }
+        }
+        
+        return (double) fieldAccessingMethods / cls.getMethods().size();
+    }
+
+    /**
+     * Génère un histogramme des valeurs de cohésion.
      */
     private static void generateCohesionHistogram(Map<String, Map<String, Double>> allProjectCohesion) {
         for (Map.Entry<String, Map<String, Double>> project : allProjectCohesion.entrySet()) {
@@ -89,7 +133,7 @@ public class ClassCohesionCalculator {
             Map<Double, Integer> cohesionFrequency = new HashMap<>();
             
             for (Double cohesion : cohesionValues.values()) {
-                cohesionFrequency.put(cohesion, cohesionFrequency.getOrDefault(cohesion, 0) + 1);
+                cohesionFrequency.merge(cohesion, 1, Integer::sum);
             }
 
             System.out.println("Cohesion Histogram for Project: " + project.getKey());
@@ -100,7 +144,7 @@ public class ClassCohesionCalculator {
     }
 
     /**
-     * Generate and save the dependency graph in DOT format.
+     * Génère et sauvegarde le graphe de dépendances au format DOT.
      */
     private static void generateDependencyGraphs(Map<String, Map<String, Set<String>>> allProjectDependencies) {
         for (Map.Entry<String, Map<String, Set<String>>> project : allProjectDependencies.entrySet()) {
@@ -128,5 +172,4 @@ public class ClassCohesionCalculator {
             }
         }
     }
-
 }
