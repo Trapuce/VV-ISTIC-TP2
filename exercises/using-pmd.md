@@ -3,7 +3,7 @@
 Pick a Java project from Github (see the [instructions](../sujet.md) for suggestions). Run PMD on its source code using any ruleset (see the [pmd install instruction](./pmd-help.md)). Describe below an issue found by PMD that you think should be solved (true positive) and include below the changes you would add to the source code. Describe below an issue found by PMD that is not worth solving (false positive). Explain why you would not solve this issue.
 
 ## Answer
-
+**Projet** Apache Commons CLI
 ### **Problème identifié par PMD - True Positive**
 **Type de problème** : `CloseResource`  
 **Description** : PMD a détecté qu'une ressource, comme un `PrintWriter` ou un `BufferedReader`, n'est pas correctement fermée après son utilisation. Cela peut entraîner des fuites de ressources, notamment dans des applications volumineuses ou à long terme.
